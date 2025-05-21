@@ -18,8 +18,35 @@ function App() {
   const [lastFartTime, setLastFartTime] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [highScore, setHighScore] = useState(0);
+  const [audioInitialized, setAudioInitialized] = useState(false);
   const audioRefs = useRef<HTMLAudioElement[]>([]);
   const appRef = useRef<HTMLDivElement>(null);
+
+  // Initialize audio on first user interaction
+  const initializeAudio = useCallback(() => {
+    if (audioInitialized) return;
+    
+    console.log("Initializing audio...");
+    
+    // Setup audio elements
+    audioRefs.current = FART_SOUNDS.map(() => new Audio());
+    
+    // Preload all sounds
+    FART_SOUNDS.forEach((sound, index) => {
+      if (audioRefs.current[index]) {
+        audioRefs.current[index].src = sound;
+        audioRefs.current[index].preload = 'auto';
+        // Create a promise to ensure audio is loaded
+        const loadPromise = audioRefs.current[index].load();
+        if (loadPromise !== undefined) {
+          loadPromise.catch(e => console.error("Error loading audio:", e));
+        }
+      }
+    });
+    
+    setAudioInitialized(true);
+    console.log("Audio initialized!");
+  }, [audioInitialized]);
 
   // Create audio elements for each sound
   useEffect(() => {
@@ -28,17 +55,6 @@ function App() {
     if (savedHighScore) {
       setHighScore(parseInt(savedHighScore, 10));
     }
-
-    // Setup audio
-    audioRefs.current = FART_SOUNDS.map(() => new Audio());
-    
-    // Preload all sounds
-    FART_SOUNDS.forEach((sound, index) => {
-      if (audioRefs.current[index]) {
-        audioRefs.current[index].src = sound;
-        audioRefs.current[index].load();
-      }
-    });
 
     // Add event listener for touch events to prevent default behavior
     const preventDefaultForTouchEvents = (e: TouchEvent) => {
@@ -54,6 +70,24 @@ function App() {
     // Remove splash screen when app is ready
     sdk.actions.ready();
     
+    // Try to initialize audio on page load
+    const tryInitAudio = () => {
+      // For iOS we need a user interaction first, so this might fail but that's ok
+      try {
+        const tempAudio = new Audio();
+        tempAudio.play().then(() => {
+          tempAudio.pause();
+          initializeAudio();
+        }).catch(() => {
+          console.log("Audio needs user interaction first");
+        });
+      } catch (e) {
+        console.log("Audio initialization deferred to first click");
+      }
+    };
+    
+    tryInitAudio();
+    
     return () => {
       // Clean up audio elements
       audioRefs.current.forEach(audio => {
@@ -64,7 +98,7 @@ function App() {
       document.removeEventListener('touchstart', preventDefaultForTouchEvents);
       document.removeEventListener('touchmove', preventDefaultForTouchEvents);
     };
-  }, []);
+  }, [initializeAudio]);
 
   // Update high score when fart count increases
   useEffect(() => {
@@ -78,6 +112,11 @@ function App() {
     // Stop event propagation
     event.stopPropagation();
     
+    // Initialize audio on first interaction if not already done
+    if (!audioInitialized) {
+      initializeAudio();
+    }
+    
     const now = Date.now();
     const timeSinceLastFart = now - lastFartTime;
     
@@ -88,11 +127,30 @@ function App() {
     const randomIndex = Math.floor(Math.random() * FART_SOUNDS.length);
     const audio = audioRefs.current[randomIndex];
     
+    // Check if audio is loaded and play
     if (audio) {
+      console.log("Playing fart sound:", FART_SOUNDS[randomIndex]);
+      
       // Reset the audio and play
       audio.currentTime = 0;
       audio.volume = 0.7 + (Math.random() * 0.3); // Slight volume variation
-      audio.play().catch(err => console.error("Error playing sound:", err));
+      
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error("Error playing sound:", error);
+          
+          // If we get a "user didn't interact" error, we'll create a new audio element and try again
+          if (error.name === 'NotAllowedError') {
+            console.log("NotAllowedError - creating new audio element");
+            const newAudio = new Audio(FART_SOUNDS[randomIndex]);
+            newAudio.volume = 0.7 + (Math.random() * 0.3);
+            newAudio.play().catch(e => console.error("Still couldn't play audio:", e));
+          }
+        });
+      }
+    } else {
+      console.error("Audio element not available");
     }
     
     // Add haptic feedback if available (for mobile devices)
@@ -107,7 +165,7 @@ function App() {
     
     // Reset animation state
     setTimeout(() => setIsAnimating(false), 300);
-  }, [lastFartTime]);
+  }, [lastFartTime, audioInitialized, initializeAudio]);
 
   const shareFartCount = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -167,6 +225,13 @@ function App() {
       <footer>
         <p>Tap anywhere to cast a fart!</p>
       </footer>
+      
+      {/* Fallback audio elements in the DOM for iOS */}
+      <div style={{ display: 'none' }}>
+        {FART_SOUNDS.map((sound, index) => (
+          <audio key={index} src={sound} preload="auto" />
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fartcaster Sounds Test</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #6d28d9;
+    }
+    .sound-button {
+      background-color: #8b5cf6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .sound-button:hover {
+      background-color: #7c3aed;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fartcaster Sound Test</h1>
+  <p>Click the buttons below to test the fart sounds:</p>
+  
+  <div>
+    <button class="sound-button" onclick="playSound('/sounds/fart1.mp3')">Fart Sound 1</button>
+    <button class="sound-button" onclick="playSound('/sounds/fart2.mp3')">Fart Sound 2</button>
+    <button class="sound-button" onclick="playSound('/sounds/fart3.mp3')">Fart Sound 3</button>
+    <button class="sound-button" onclick="playSound('/sounds/fart4.mp3')">Fart Sound 4</button>
+    <button class="sound-button" onclick="playSound('/sounds/fart5.mp3')">Fart Sound 5</button>
+  </div>
+
+  <script>
+    function playSound(soundUrl) {
+      const audio = new Audio(soundUrl);
+      audio.play().catch(err => {
+        console.error("Error playing sound:", err);
+        alert("Error playing sound. This might be due to browser restrictions. Try enabling autoplay in your browser settings.");
+      });
+    }
+  </script>
+</body>
+</html> 
