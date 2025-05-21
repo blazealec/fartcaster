@@ -1,99 +1,69 @@
 # Fartcaster 💨
 
-The world's premier fart-casting platform on the Farcaster network!
-
-## About
-
-Fartcaster is a fun and interactive Farcaster mini app that lets users:
-
-- Tap to create authentic fart sounds
-- Count the number of "farts cast"
-- Share their accomplishments with friends on Farcaster
+A Farcaster mini app that lets users tap the screen to make fart sounds and track their "farts cast" count.
 
 ## Features
 
-- Beautiful UI with smooth animations
-- Multiple randomized fart sounds
-- Counter to track your fart-casting accomplishments
-- Easy sharing to Farcaster
-- Responsive design for all devices
+- Tap to play random fart sounds
+- Track your fart count with local storage
+- Share your fart achievements on Farcaster
+- Beautiful gradient UI with animations
+- High score tracking
 
-## Development
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 16+
+- Node.js 16+ 
 - npm or yarn
 
-### Setup
+### Installation
 
 1. Clone the repository
-   ```
-   git clone https://github.com/yourusername/fartcaster.git
-   cd fartcaster
-   ```
+```bash
+git clone https://github.com/blazealec/fartcaster.git
+cd fartcaster/fartcaster
+```
 
 2. Install dependencies
-   ```
-   npm install
-   ```
+```bash
+npm install
+```
 
-3. Start the development server
-   ```
-   npm run dev
-   ```
+3. Run the development server
+```bash
+npm run dev
+```
 
-4. Open your browser to http://localhost:5173
+The app will be available at http://localhost:5173
 
-### Sound Files
+## Deployment to Vercel
 
-The app uses placeholder sound files located in `public/sounds/`. Replace these with actual fart sound files for the best experience:
+The easiest way to deploy Fartcaster is using Vercel:
 
-- fart1.mp3
-- fart2.mp3
-- fart3.mp3
-- fart4.mp3
-- fart5.mp3
+1. Fork this repository
+2. Connect to Vercel
+3. Create a new project from the forked repository
+4. Configure the build settings:
+   - Framework: Vite
+   - Root Directory: fartcaster
+   - Build Command: npm run build
+   - Output Directory: dist
 
-### Images
+## Publishing to Farcaster
 
-Replace the placeholder images in `public/images/` with your own:
+To make your Fartcaster app available in Warpcast:
 
-- logo.png - App icon (200x200px recommended)
-- share-image.png - Image for sharing in Farcaster (3:2 aspect ratio)
-- hero.png - Hero image for app store listings
-- og.png - Open Graph image for social sharing
+1. Deploy the app to Vercel or your hosting provider
+2. Update the `farcaster.json` file in `public/.well-known/` with your domain and information
+3. Create account association using the Warpcast Mini App Manifest Tool
+4. Add the association to your farcaster.json file
+5. Test your app using the Warpcast Mini App Debug Tool
 
-## Deployment
+## Sound Credits
 
-1. Build the app for production
-   ```
-   npm run build
-   ```
-
-2. Deploy the contents of the `dist` directory to your hosting provider
-
-3. Set up the domain and update the URLs in:
-   - `index.html` (fc:frame meta tag)
-   - `public/.well-known/farcaster.json`
-
-## Publishing on Farcaster
-
-To publish your app on Farcaster:
-
-1. Host the app on your domain (e.g., fartcaster.example.com)
-2. Ensure the `.well-known/farcaster.json` file is accessible
-3. Use the [Mini App Manifest Tool](https://warpcast.com/~/developers/new) in Warpcast to generate the `accountAssociation` property
-4. Add the generated association to your `farcaster.json` file
-
-## Contributing
-
-Contributions are welcome! Feel free to submit a PR or open an issue.
+The app includes 5 high-quality fart sound effects.
 
 ## License
 
-MIT License
-
----
-
-Created with 💨 by [Your Name] 
+MIT 
