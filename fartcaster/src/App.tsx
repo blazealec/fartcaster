@@ -3,15 +3,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 // @ts-ignore
 import { sdk } from "@farcaster/frame-sdk";
 import './App.css';
-
-// Define different fart sound files
-const FART_SOUNDS = [
-  '/sounds/fart1.mp3',
-  '/sounds/fart2.mp3',
-  '/sounds/fart3.mp3',
-  '/sounds/fart4.mp3',
-  '/sounds/fart5.mp3',
-];
+import { FART_SOUNDS } from './sounds';
 
 function App() {
   const [fartCount, setFartCount] = useState(0);
@@ -52,11 +44,13 @@ function App() {
 
   // Get references to the audio elements in the DOM
   useEffect(() => {
-    // Try to get references to all the audio elements
-    const audioElements = document.querySelectorAll('audio');
-    audioElementsRef.current = Array.from(audioElements);
+    // Create new audio elements for each sound
+    audioElementsRef.current = FART_SOUNDS.map(soundData => {
+      const audio = new Audio(soundData);
+      return audio;
+    });
     
-    console.log(`Found ${audioElementsRef.current.length} audio elements`);
+    console.log(`Created ${audioElementsRef.current.length} audio elements`);
   }, []);
 
   // Update high score when fart count increases
@@ -81,7 +75,7 @@ function App() {
     const randomIndex = Math.floor(Math.random() * FART_SOUNDS.length);
     
     try {
-      // Try to access the audio element
+      // Try to play the sound
       if (audioElementsRef.current && audioElementsRef.current.length > 0) {
         const audio = audioElementsRef.current[randomIndex];
         
@@ -94,6 +88,15 @@ function App() {
           // Try to play the sound
           audio.play().catch(error => {
             console.error("Error playing sound:", error);
+            
+            // If there's an error, try creating a new audio element on the fly
+            try {
+              const newAudio = new Audio(FART_SOUNDS[randomIndex]);
+              newAudio.volume = 0.7;
+              newAudio.play().catch(e => console.error("Still couldn't play audio:", e));
+            } catch (e) {
+              console.error("Failed to create audio element:", e);
+            }
           });
         } else {
           console.error("Audio element not found at index", randomIndex);
@@ -177,11 +180,6 @@ function App() {
       <footer>
         <p>Tap anywhere to cast a fart!</p>
       </footer>
-      
-      {/* Audio elements directly in the DOM */}
-      {FART_SOUNDS.map((sound, index) => (
-        <audio key={index} src={sound} preload="auto" />
-      ))}
     </div>
   );
 }
