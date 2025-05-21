@@ -1,9 +1,9 @@
 {
   "framework": "vite",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "buildCommand": "cd fartcaster && npm install && npm run build",
+  "devCommand": "cd fartcaster && npm run dev",
+  "outputDirectory": "fartcaster/dist",
+  "installCommand": "cd fartcaster && npm install",
   "headers": [
     {
       "source": "/(.*)",
