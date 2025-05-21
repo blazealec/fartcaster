@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/fartcaster/$1" }
+  ],
+  "buildCommand": "cd fartcaster && npm install && npm run build",
+  "devCommand": "cd fartcaster && npm run dev",
+  "outputDirectory": "fartcaster/dist",
+  "installCommand": "cd fartcaster && npm install",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
+} 
