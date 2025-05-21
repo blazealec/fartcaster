@@ -2,9 +2,9 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 // @ts-ignore
 import { sdk } from "@farcaster/frame-sdk";
-import './index.css';
+import './App.css';
 
-// Define different fart sound files - we now have real files
+// Define different fart sound files
 const FART_SOUNDS = [
   '/sounds/fart1.mp3',
   '/sounds/fart2.mp3',
@@ -18,27 +18,16 @@ function App() {
   const [lastFartTime, setLastFartTime] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [highScore, setHighScore] = useState(0);
-  const audioRefs = useRef<HTMLAudioElement[]>([]);
+  const audioElementsRef = useRef<HTMLAudioElement[]>([]);
   const appRef = useRef<HTMLDivElement>(null);
 
-  // Create audio elements for each sound
+  // Create and preload audio elements
   useEffect(() => {
     // Check if there's a saved high score
     const savedHighScore = localStorage.getItem('fartcaster-highscore');
     if (savedHighScore) {
       setHighScore(parseInt(savedHighScore, 10));
     }
-
-    // Setup audio
-    audioRefs.current = FART_SOUNDS.map(() => new Audio());
-    
-    // Preload all sounds
-    FART_SOUNDS.forEach((sound, index) => {
-      if (audioRefs.current[index]) {
-        audioRefs.current[index].src = sound;
-        audioRefs.current[index].load();
-      }
-    });
 
     // Add event listener for touch events to prevent default behavior
     const preventDefaultForTouchEvents = (e: TouchEvent) => {
@@ -51,19 +40,23 @@ function App() {
     document.addEventListener('touchstart', preventDefaultForTouchEvents, { passive: false });
     document.addEventListener('touchmove', preventDefaultForTouchEvents, { passive: false });
 
-    // Remove splash screen when app is ready
+    // Let the SDK know we're ready to show the app
     sdk.actions.ready();
     
     return () => {
-      // Clean up audio elements
-      audioRefs.current.forEach(audio => {
-        audio.pause();
-        audio.src = '';
-      });
       // Clean up event listeners
       document.removeEventListener('touchstart', preventDefaultForTouchEvents);
       document.removeEventListener('touchmove', preventDefaultForTouchEvents);
     };
+  }, []);
+
+  // Get references to the audio elements in the DOM
+  useEffect(() => {
+    // Try to get references to all the audio elements
+    const audioElements = document.querySelectorAll('audio');
+    audioElementsRef.current = Array.from(audioElements);
+    
+    console.log(`Found ${audioElementsRef.current.length} audio elements`);
   }, []);
 
   // Update high score when fart count increases
@@ -84,15 +77,32 @@ function App() {
     // Prevent spam clicking (limit to one fart per 150ms)
     if (timeSinceLastFart < 150) return;
     
-    // Get a random fart sound
+    // Get a random index
     const randomIndex = Math.floor(Math.random() * FART_SOUNDS.length);
-    const audio = audioRefs.current[randomIndex];
     
-    if (audio) {
-      // Reset the audio and play
-      audio.currentTime = 0;
-      audio.volume = 0.7 + (Math.random() * 0.3); // Slight volume variation
-      audio.play().catch(err => console.error("Error playing sound:", err));
+    try {
+      // Try to access the audio element
+      if (audioElementsRef.current && audioElementsRef.current.length > 0) {
+        const audio = audioElementsRef.current[randomIndex];
+        
+        if (audio) {
+          console.log("Playing sound from audio element");
+          // Reset the audio and play
+          audio.currentTime = 0;
+          audio.volume = 0.7;
+          
+          // Try to play the sound
+          audio.play().catch(error => {
+            console.error("Error playing sound:", error);
+          });
+        } else {
+          console.error("Audio element not found at index", randomIndex);
+        }
+      } else {
+        console.error("No audio elements available");
+      }
+    } catch (error) {
+      console.error("Error playing fart sound:", error);
     }
     
     // Add haptic feedback if available (for mobile devices)
@@ -167,6 +177,11 @@ function App() {
       <footer>
         <p>Tap anywhere to cast a fart!</p>
       </footer>
+      
+      {/* Audio elements directly in the DOM */}
+      {FART_SOUNDS.map((sound, index) => (
+        <audio key={index} src={sound} preload="auto" />
+      ))}
     </div>
   );
 }
