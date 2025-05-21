@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fartcaster - Verification Page</title>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+      color: #334155;
+      text-align: center;
+    }
+    
+    .card {
+      padding: 30px;
+      background: white;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      border-radius: 16px;
+      max-width: 500px;
+      width: 100%;
+    }
+    
+    h1 {
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #8B5CF6, #EC4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+    }
+    
+    .emoji {
+      font-size: 64px;
+      margin: 20px 0;
+    }
+    
+    .button {
+      display: inline-block;
+      background: #4338CA;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      margin: 10px;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    
+    .button:hover {
+      background: #372e8c;
+      transform: translateY(-2px);
+    }
+    
+    .features {
+      text-align: left;
+      margin: 20px 0;
+    }
+    
+    .features li {
+      margin-bottom: 10px;
+    }
+    
+    .features li::before {
+      content: "✓";
+      color: #4338CA;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+  </style>
+  
+  <!-- Farcaster Mini App Metadata -->
+  <meta name="fc:frame" content='{"version":"next","imageUrl":"http://localhost:5173/images/share-image.png","button":{"title":"💨 Start Farting","action":{"type":"launch_frame","name":"Fartcaster","url":"http://localhost:5173","splashImageUrl":"http://localhost:5173/images/logo.png","splashBackgroundColor":"#8B5CF6"}}}' />
+</head>
+<body>
+  <div class="card">
+    <h1>Fartcaster</h1>
+    <div class="emoji">💨</div>
+    <p>The world's premier fart-casting platform on the Farcaster network!</p>
+    
+    <div class="features">
+      <h3>Features:</h3>
+      <ul>
+        <li>Tap to create authentic fart sounds</li>
+        <li>Track your fart-cast count</li>
+        <li>Share your achievements on Farcaster</li>
+        <li>Beautiful and responsive UI</li>
+        <li>Multiple randomized fart sounds</li>
+      </ul>
+    </div>
+    
+    <a href="/" class="button">Open Fartcaster</a>
+  </div>
+</body>
+</html> 

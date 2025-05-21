@@ -1,0 +1,26 @@
+{
+  "frame": {
+    "version": "1",
+    "name": "Fartcaster",
+    "iconUrl": "https://fartcaster.vercel.app/images/logo.png",
+    "homeUrl": "https://fartcaster.vercel.app",
+    "imageUrl": "https://fartcaster.vercel.app/images/share-image.png",
+    "buttonTitle": "💨 Let it rip!",
+    "splashImageUrl": "https://fartcaster.vercel.app/images/logo.png",
+    "splashBackgroundColor": "#6d28d9",
+    "subtitle": "Cast your farts to the world",
+    "description": "Tap to fart and track your farts cast. Share your flatulence achievements on Farcaster!",
+    "primaryCategory": "entertainment",
+    "tags": [
+      "fun",
+      "humor",
+      "farts",
+      "sound"
+    ],
+    "heroImageUrl": "http://localhost:5173/images/hero.png",
+    "tagline": "Tap, Fart, Share, Repeat",
+    "ogTitle": "Fartcaster - Cast your farts!",
+    "ogDescription": "Tap to fart and track your farts cast. Share your flatulence achievements on Farcaster!",
+    "ogImageUrl": "https://fartcaster.vercel.app/images/share-image.png"
+  }
+} 
