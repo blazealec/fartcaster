@@ -7,6 +7,11 @@
     <title>Fartcaster - Cast your farts to the world</title>
     <meta name="description" content="Tap to fart and track your farts cast. Share your flatulence achievements on Farcaster!" />
     
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
     <!-- Open Graph / Social Media -->
     <meta property="og:title" content="Fartcaster - Cast your farts!" />
     <meta property="og:description" content="Tap to fart and track your farts cast. Share your flatulence achievements on Farcaster!" />
@@ -21,9 +26,35 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+      #reset-link {
+        position: fixed;
+        bottom: 5px;
+        right: 5px;
+        background: rgba(0,0,0,0.5);
+        color: white;
+        padding: 5px 10px;
+        font-size: 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-family: 'Inter', sans-serif;
+        z-index: 9999;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx?v=1.0.3"></script>
+    <a href="/reset.html" id="reset-link">Reset App</a>
+    <script type="module" src="/src/main.tsx?v=1.0.4"></script>
+    <script>
+      // Clear any cached audio elements
+      window.addEventListener('load', function() {
+        const audioElements = document.querySelectorAll('audio');
+        audioElements.forEach(audio => {
+          audio.remove();
+        });
+      });
+    </script>
   </body>
 </html> 

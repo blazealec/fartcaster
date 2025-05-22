@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fartcaster - Resetting...</title>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #6d28d9, #9333ea);
+        color: white;
+        height: 100vh;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+      }
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+      }
+      .loader {
+        border: 8px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 8px solid white;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Resetting Fartcaster</h1>
+    <p>Clearing caches and reloading...</p>
+    <div class="loader"></div>
+
+    <script>
+      // Clear cache storage
+      if (window.caches) {
+        caches.keys().then(cacheNames => {
+          return Promise.all(
+            cacheNames.map(cacheName => {
+              console.log('Deleting cache:', cacheName);
+              return caches.delete(cacheName);
+            })
+          );
+        }).catch(error => {
+          console.error('Error clearing cache:', error);
+        });
+      }
+
+      // Clear service workers
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (let registration of registrations) {
+            registration.unregister();
+            console.log('Service worker unregistered');
+          }
+        });
+      }
+
+      // Clear local storage (except high score)
+      const highScore = localStorage.getItem('fartcaster-highscore');
+      localStorage.clear();
+      if (highScore) {
+        localStorage.setItem('fartcaster-highscore', highScore);
+      }
+      
+      // Redirect to main page with cache busting parameter
+      setTimeout(() => {
+        window.location.href = `/?nocache=${Date.now()}`;
+      }, 2000);
+    </script>
+  </body>
+</html> 

@@ -29,6 +29,30 @@ function App() {
       }
     };
 
+    // This function finds and removes any rogue audio elements 
+    // that might be trying to load the old base64 audio
+    const cleanupRogueAudio = () => {
+      // Find all audio elements in the document
+      const audioElements = document.querySelectorAll('audio');
+      
+      // Remove them
+      audioElements.forEach(audio => {
+        console.log('Removing rogue audio element', audio);
+        audio.remove();
+      });
+      
+      // Also clear any audio-related references in window
+      // @ts-ignore
+      if (window._audioElements) {
+        // @ts-ignore
+        delete window._audioElements;
+      }
+    };
+
+    // Run the cleanup immediately and periodically
+    cleanupRogueAudio();
+    const cleanupInterval = setInterval(cleanupRogueAudio, 1000);
+
     document.addEventListener('touchstart', preventDefaultForTouchEvents, { passive: false });
     document.addEventListener('touchmove', preventDefaultForTouchEvents, { passive: false });
 
@@ -39,6 +63,9 @@ function App() {
       // Clean up event listeners
       document.removeEventListener('touchstart', preventDefaultForTouchEvents);
       document.removeEventListener('touchmove', preventDefaultForTouchEvents);
+      
+      // Clean up interval
+      clearInterval(cleanupInterval);
       
       // Close the audio context if it was created
       if (audioContextRef.current) {
