@@ -60,28 +60,62 @@ function App() {
       const ctx = audioContextRef.current;
       isPlayingRef.current = true;
 
-      const duration = Math.random() * 0.3 + 0.2; // 0.2 - 0.5s
-      const baseFreq = Math.random() * 50 + 50; // 50 - 100Hz
+      const duration = Math.random() * 0.6 + 0.4; // 0.4 - 1.0s for richer sound
+      const baseFreq = 40 + Math.random() * 40; // 40 - 80Hz rumble
       const now = ctx.currentTime;
 
+      // --- Low-frequency rumble oscillator ---
       const osc = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-
-      osc.type = 'sine';
+      osc.type = 'sawtooth';
       osc.frequency.value = baseFreq;
 
-      osc.connect(gainNode);
-      gainNode.connect(ctx.destination);
+      const rumbleGain = ctx.createGain();
+      osc.connect(rumbleGain);
+      rumbleGain.connect(ctx.destination);
 
-      gainNode.gain.setValueAtTime(0, now);
-      gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      // Envelope for rumble
+      rumbleGain.gain.setValueAtTime(0, now);
+      rumbleGain.gain.linearRampToValueAtTime(0.5, now + 0.05);
+      rumbleGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
+      // Gentle drop in frequency for comedic effect
       osc.frequency.setValueAtTime(baseFreq, now);
-      osc.frequency.linearRampToValueAtTime(baseFreq * 0.7, now + duration);
+      osc.frequency.linearRampToValueAtTime(baseFreq * 0.6, now + duration);
 
+      // --- Noisy component for 'wetness' ---
+      const bufferSize = ctx.sampleRate * duration;
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        // Brown-ish noise for deeper sound
+        data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      }
+
+      const noiseSource = ctx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 200 + Math.random() * 300; // 200-500 Hz
+      noiseFilter.Q.value = 0.7;
+
+      const noiseGain = ctx.createGain();
+
+      noiseSource.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+
+      // Envelope for noise
+      noiseGain.gain.setValueAtTime(0, now);
+      noiseGain.gain.linearRampToValueAtTime(0.8, now + 0.02);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      // Start/stop sources
       osc.start(now);
       osc.stop(now + duration);
+
+      noiseSource.start(now);
+      noiseSource.stop(now + duration);
 
       setTimeout(() => {
         isPlayingRef.current = false;
