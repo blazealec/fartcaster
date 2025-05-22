@@ -12,6 +12,8 @@ function App() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const isPlayingRef = useRef(false);
   const appRef = useRef<HTMLDivElement>(null);
+  const [leaderboard, setLeaderboard] = useState<{fid:number; total:number}[]>([]);
+  const fidRef = useRef<number | null>(null);
 
   // Create and preload audio elements
   useEffect(() => {
@@ -154,6 +156,18 @@ function App() {
     
     // Update state
     setFartCount(prev => prev + 1);
+    if(fidRef.current){
+      fetch('/api/leaderboard', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({fid: fidRef.current, increment:1})
+      }).then(()=>{
+        // refresh leaderboard lightly
+        fetch('/api/leaderboard')
+           .then(r=>r.json())
+           .then(d=>{if(d.leaderboard) setLeaderboard(d.leaderboard);});
+      }).catch(()=>{});
+    }
     setLastFartTime(now);
     setIsAnimating(true);
     
@@ -178,6 +192,21 @@ function App() {
     e.stopPropagation();
     setFartCount(0);
   };
+
+  // after SDK ready, capture fid and fetch leaderboard
+  useEffect(() => {
+    // @ts-ignore – Farcaster SDK context typing
+    const userFid = sdk.context?.user?.fid;
+    if (userFid) {
+      fidRef.current = userFid;
+    }
+
+    // fetch leaderboard
+    fetch('/api/leaderboard')
+      .then(r=>r.json())
+      .then(data=>{ if(data.leaderboard) setLeaderboard(data.leaderboard); })
+      .catch(()=>{});
+  }, []);
 
   return (
     <div 
@@ -216,6 +245,19 @@ function App() {
         )}
       </div>
       
+      {leaderboard.length>0 && (
+        <div className="leaderboard">
+          <h3>Daily Fartboard</h3>
+          <ol>
+            {leaderboard.map((row,idx)=>(
+              <li key={row.fid}>
+                #{idx+1} – fid {row.fid}: {row.total}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+       
       <footer>
         <p>Tap anywhere to cast a fart!</p>
       </footer>
