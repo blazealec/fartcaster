@@ -3,14 +3,14 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 // @ts-ignore
 import { sdk } from "@farcaster/frame-sdk";
 import './App.css';
-import { FART_SOUNDS } from './sounds';
 
 function App() {
   const [fartCount, setFartCount] = useState(0);
   const [lastFartTime, setLastFartTime] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [highScore, setHighScore] = useState(0);
-  const audioElementsRef = useRef<HTMLAudioElement[]>([]);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const isPlayingRef = useRef(false);
   const appRef = useRef<HTMLDivElement>(null);
 
   // Create and preload audio elements
@@ -39,18 +39,57 @@ function App() {
       // Clean up event listeners
       document.removeEventListener('touchstart', preventDefaultForTouchEvents);
       document.removeEventListener('touchmove', preventDefaultForTouchEvents);
+      // Close audio context if created
+      if (audioContextRef.current) {
+        audioContextRef.current.close().catch(() => {});
+      }
     };
   }, []);
 
-  // Get references to the audio elements in the DOM
-  useEffect(() => {
-    // Create new audio elements for each sound
-    audioElementsRef.current = FART_SOUNDS.map(soundData => {
-      const audio = new Audio(soundData);
-      return audio;
-    });
-    
-    console.log(`Created ${audioElementsRef.current.length} audio elements`);
+  // Function to create fart sound using Web Audio API
+  const playFartSound = useCallback(() => {
+    if (isPlayingRef.current) return;
+
+    try {
+      if (!audioContextRef.current) {
+        //@ts-ignore
+        const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+        audioContextRef.current = new AudioContextCtor();
+      }
+
+      const ctx = audioContextRef.current;
+      isPlayingRef.current = true;
+
+      const duration = Math.random() * 0.3 + 0.2; // 0.2 - 0.5s
+      const baseFreq = Math.random() * 50 + 50; // 50 - 100Hz
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.value = baseFreq;
+
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.linearRampToValueAtTime(baseFreq * 0.7, now + duration);
+
+      osc.start(now);
+      osc.stop(now + duration);
+
+      setTimeout(() => {
+        isPlayingRef.current = false;
+      }, duration * 1000 + 50);
+    } catch (error) {
+      console.error('Error playing fart sound:', error);
+      isPlayingRef.current = false;
+    }
   }, []);
 
   // Update high score when fart count increases
@@ -71,42 +110,8 @@ function App() {
     // Prevent spam clicking (limit to one fart per 150ms)
     if (timeSinceLastFart < 150) return;
     
-    // Get a random index
-    const randomIndex = Math.floor(Math.random() * FART_SOUNDS.length);
-    
-    try {
-      // Try to play the sound
-      if (audioElementsRef.current && audioElementsRef.current.length > 0) {
-        const audio = audioElementsRef.current[randomIndex];
-        
-        if (audio) {
-          console.log("Playing sound from audio element");
-          // Reset the audio and play
-          audio.currentTime = 0;
-          audio.volume = 0.7;
-          
-          // Try to play the sound
-          audio.play().catch(error => {
-            console.error("Error playing sound:", error);
-            
-            // If there's an error, try creating a new audio element on the fly
-            try {
-              const newAudio = new Audio(FART_SOUNDS[randomIndex]);
-              newAudio.volume = 0.7;
-              newAudio.play().catch(e => console.error("Still couldn't play audio:", e));
-            } catch (e) {
-              console.error("Failed to create audio element:", e);
-            }
-          });
-        } else {
-          console.error("Audio element not found at index", randomIndex);
-        }
-      } else {
-        console.error("No audio elements available");
-      }
-    } catch (error) {
-      console.error("Error playing fart sound:", error);
-    }
+    // Play fart sound using Web Audio
+    playFartSound();
     
     // Add haptic feedback if available (for mobile devices)
     if (window.navigator && window.navigator.vibrate) {
@@ -120,7 +125,7 @@ function App() {
     
     // Reset animation state
     setTimeout(() => setIsAnimating(false), 300);
-  }, [lastFartTime]);
+  }, [lastFartTime, playFartSound]);
 
   const shareFartCount = async (e: React.MouseEvent) => {
     e.stopPropagation();
