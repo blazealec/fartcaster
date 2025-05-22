@@ -1,6 +1,7 @@
 {
   "version": 2,
   "rewrites": [
+    { "source": "/.well-known/(.*)", "destination": "/.well-known/$1" },
     { "source": "/(.*)", "destination": "/fartcaster/$1" }
   ],
   "buildCommand": "cd fartcaster && npm install && npm run build",
