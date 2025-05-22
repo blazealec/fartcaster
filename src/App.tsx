@@ -11,6 +11,7 @@ function App() {
   const [highScore, setHighScore] = useState(0);
   const appRef = useRef<HTMLDivElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const isPlayingRef = useRef(false);
 
   // Initialize the app
   useEffect(() => {
@@ -54,53 +55,66 @@ function App() {
     }
   }, [fartCount, highScore]);
 
-  // Create a fart sound using the Web Audio API
+  // Create a fart sound using Web Audio API
   const playFartSound = useCallback(() => {
+    // Prevent multiple sounds from playing simultaneously
+    if (isPlayingRef.current) return;
+    
     try {
       // Initialize AudioContext if it doesn't exist
       if (!audioContextRef.current) {
-        // @ts-ignore for older browsers
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioContextRef.current = new AudioContext();
+        try {
+          // @ts-ignore for older browsers
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          audioContextRef.current = new AudioContext();
+        } catch (error) {
+          console.error("Failed to create AudioContext:", error);
+          return;
+        }
       }
       
       const ctx = audioContextRef.current;
+      isPlayingRef.current = true;
       
-      // Create a simple oscillator-based fart sound
+      // Random values for variety
+      const duration = Math.random() * 0.3 + 0.2; // 0.2-0.5 seconds
+      const baseFreq = Math.random() * 50 + 50; // 50-100 Hz
+      const now = ctx.currentTime;
+      
+      // Create oscillator and gain nodes
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
       
-      // Random frequency for variety
-      const randomFreq = Math.random() * 50 + 50; // 50-100 Hz
-      
-      // Set oscillator type and frequency
+      // Configure oscillator
       osc.type = 'sine';
-      osc.frequency.value = randomFreq;
+      osc.frequency.value = baseFreq;
       
-      // Connect nodes
+      // Connect the audio graph
       osc.connect(gainNode);
       gainNode.connect(ctx.destination);
       
-      // Create envelope for the fart sound
-      const now = ctx.currentTime;
-      const duration = Math.random() * 0.3 + 0.2; // 0.2-0.5 seconds
-      
-      // Set volume envelope
+      // Set up the envelope
       gainNode.gain.setValueAtTime(0, now);
       gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01);
       gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
       
-      // Add a frequency sweep (falling pitch)
-      osc.frequency.setValueAtTime(randomFreq, now);
-      osc.frequency.exponentialRampToValueAtTime(randomFreq * 0.7, now + duration);
+      // Add frequency modulation for more realistic fart sound
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.linearRampToValueAtTime(baseFreq * 0.7, now + duration);
       
       // Start and stop the oscillator
       osc.start(now);
       osc.stop(now + duration);
       
+      // Reset isPlaying flag after the sound is done
+      setTimeout(() => {
+        isPlayingRef.current = false;
+      }, duration * 1000 + 50);
+      
       console.log("Playing fart sound with Web Audio API");
     } catch (error) {
       console.error("Error playing fart sound:", error);
+      isPlayingRef.current = false;
     }
   }, []);
 
