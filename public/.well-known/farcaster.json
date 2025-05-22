@@ -1,4 +1,9 @@
 {
+  "accountAssociation": {
+    "header": "eyJmaWQiOjg5NzQzOSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDM0RjM5NDg5NDZEODcxNzdmNGYwMzg1M0Q1ZWJGNWU1ODdkQmRBYmUifQ",
+    "payload": "eyJkb21haW4iOiJmYXJ0Y2FzdGVyLXhpLnZlcmNlbC5hcHAifQ",
+    "signature": "MHg3YmM5YTZmMjdlOWFkMjk3MzhjOWRiNThhMjNhNGRjYzA4YTFmMmI5OGFmZjM3MDQ3MzEyYzM1M2YzOWVkNjg1MzQ3NTAzMDJhYTM0MjVjZjAwOGI4NjMzYmZmMzZkODM4NTJmODQxNTMxMjVjZDlkMzlhYjcwNTg5ZGEzOTRjODFj"
+  },
   "frame": {
     "version": "1",
     "name": "Fartcaster",
