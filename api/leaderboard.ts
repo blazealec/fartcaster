@@ -23,10 +23,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'GET') {
     try {
-      const top = await redis.zrevrange('fartboard', 0, 19, { withScores: true });
+      const top = await redis.zrange('fartboard', 0, 19, { withScores: true, rev: true });
       const leaderboard: { fid: number; total: number }[] = [];
       for (let i = 0; i < top.length; i += 2) {
-        leaderboard.push({ fid: parseInt(top[i]), total: parseInt(top[i + 1]) });
+        leaderboard.push({ fid: parseInt(top[i] as string, 10), total: parseInt(top[i + 1] as string, 10) });
       }
       return res.json({ leaderboard });
     } catch (e) {
